@@ -10,7 +10,8 @@
   "dependencies": {
     "react": "16.8.6",
     "react-native": "0.60.5",
-    "react-native-gesture-handler": "^1.4.1"
+    "react-native-gesture-handler": "^1.4.1",
+    "reactotron-react-native": "^3.6.5"
   },
   "devDependencies": {
     "@babel/core": "^7.6.0",
