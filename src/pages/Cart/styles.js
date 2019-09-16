@@ -5,6 +5,17 @@ export const Container = styled.SafeAreaView`
   flex: 1;
 `;
 
+export const EmptyState = styled.SafeAreaView`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const EmptyStateText = styled.Text`
+  color: #00000099;
+  font-size: 16px;
+`;
+
 export const ProductList = styled(FlatList)``;
 
 export const Product = styled.View`
@@ -29,12 +40,16 @@ export const ProductInfo = styled.View`
   flex-direction: column;
 `;
 
-export const ProductTitle = styled.Text`
+export const ProductTitle = styled.Text.attrs({
+  numberOfLines: 1,
+})`
   color: #000000de;
   font-size: 16px;
 `;
 
-export const ProductStock = styled.Text`
+export const ProductStock = styled.Text.attrs({
+  numberOfLines: 1,
+})`
   color: #00000099;
   font-size: 14px;
 `;
@@ -51,7 +66,7 @@ export const ProductQuantityInput = styled.TextInput.attrs({
   editable: false,
 })`
   height: 32px;
-  width: 40px;
+  width: 36px;
   margin: 0;
   padding: 0;
   font-size: 16px;
@@ -60,12 +75,15 @@ export const ProductQuantityInput = styled.TextInput.attrs({
 `;
 
 export const ProductPrice = styled.Text`
+  margin-left: 8px;
   color: #00000099;
   font-size: 18px;
 `;
 
 export const Order = styled.View`
   flex-shrink: 0;
+  border-top-width: 1px;
+  border-top-color: #eee;
 `;
 
 export const OrderItem = styled.View`

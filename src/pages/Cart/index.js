@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import {
   Container,
+  EmptyState,
+  EmptyStateText,
   ProductList,
   Product,
   ProductRemove,
@@ -22,34 +27,48 @@ import {
   CheckoutButtonText,
 } from './styles';
 
+import * as CartActions from '../../store/modules/cart/actions';
+
 class Cart extends Component {
   static navigationOptions = {
     title: 'Cart',
   };
 
-  state = {
-    products: [
-      {
-        id: 1,
-        title: 'Product 1',
-        price: 100,
-        image:
-          'https://cdn.shopify.com/s/files/1/0003/5933/3902/products/Bridge_PDP_02_1024x1024.jpg?v=1563409099',
-      },
-      {
-        id: 2,
-        title: 'Product 2',
-        price: 90,
-        image:
-          'https://cdn-a.william-reed.com/var/wrbm_gb_food_pharma/storage/images/publications/food-beverage-nutrition/beveragedaily.com/article/2018/09/17/soylent-cult-following-in-the-us-leads-to-uk-launch/8605102-1-eng-GB/Soylent-cult-following-in-the-US-leads-to-UK-launch_wrbm_large.jpg',
-      },
-    ],
+  static propTypes = {
+    cart: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number,
+        image: PropTypes.string,
+        title: PropTypes.string,
+        quantity: PropTypes.number,
+        subtotal: PropTypes.string,
+      }),
+    ).isRequired,
+    orderValue: PropTypes.string.isRequired,
+
+    updateQuantityRequest: PropTypes.func.isRequired,
+    removeFromCart: PropTypes.func.isRequired,
   };
 
-  renderProduct({ item: product }) {
+  increaseQuantity = product => {
+    const { updateQuantityRequest } = this.props;
+    updateQuantityRequest(product.id, product.quantity + 1);
+  };
+
+  decreaseQuantity = product => {
+    const { updateQuantityRequest } = this.props;
+    updateQuantityRequest(product.id, product.quantity - 1);
+  };
+
+  handleRemove = id => {
+    const { removeFromCart } = this.props;
+    removeFromCart(id);
+  };
+
+  renderProduct = ({ item: product }) => {
     return (
       <Product>
-        <ProductRemove>
+        <ProductRemove onPress={() => this.handleRemove(product.id)}>
           <Icon name="close" size={24} />
         </ProductRemove>
         <ProductImage source={{ uri: product.image }} />
@@ -57,33 +76,46 @@ class Cart extends Component {
           <ProductTitle>{product.title}</ProductTitle>
           <ProductStock>1 in stock</ProductStock>
           <ProductQuantity>
-            <ProductQuantityButton>
+            <ProductQuantityButton
+              onPress={() => this.decreaseQuantity(product)}
+            >
               <Icon name="remove-circle-outline" size={24} />
             </ProductQuantityButton>
-            <ProductQuantityInput value="3" />
-            <ProductQuantityButton>
+            <ProductQuantityInput value={String(product.quantity)} />
+            <ProductQuantityButton
+              onPress={() => this.increaseQuantity(product)}
+            >
               <Icon name="add-circle-outline" size={24} />
             </ProductQuantityButton>
           </ProductQuantity>
         </ProductInfo>
-        <ProductPrice>{product.price}</ProductPrice>
+        <ProductPrice>{product.subtotal}</ProductPrice>
       </Product>
     );
-  }
+  };
 
   render() {
-    const { products } = this.state;
+    const { cart, orderValue } = this.props;
+
+    if (cart && cart.length <= 0) {
+      return (
+        <EmptyState>
+          <EmptyStateText>Your cart is empty.</EmptyStateText>
+        </EmptyState>
+      );
+    }
+
     return (
       <Container>
         <ProductList
-          data={products}
+          data={cart}
           keyExtractor={item => String(item.id)}
           renderItem={this.renderProduct}
         />
         <Order>
           <OrderItem>
             <OrderLabel>TOTAL</OrderLabel>
-            <OrderTotal>$300.00</OrderTotal>
+            <OrderTotal>{orderValue}</OrderTotal>
           </OrderItem>
         </Order>
         <CheckoutButton>
@@ -94,4 +126,20 @@ class Cart extends Component {
   }
 }
 
-export default Cart;
+const mapStateToProps = state => ({
+  cart: state.cart.map(product => ({
+    ...product,
+    subtotal: `$${product.price * product.quantity}`,
+  })),
+  orderValue: `$${state.cart.reduce((total, product) => {
+    return total + product.price * product.quantity;
+  }, 0)}`,
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(CartActions, dispatch);
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Cart);
