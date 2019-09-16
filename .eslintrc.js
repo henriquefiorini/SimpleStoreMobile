@@ -26,6 +26,7 @@ module.exports = {
     'react/state-in-constructor': 'off',
     'react/static-property-placement': 'off',
 
+    'class-methods-use-this': 'off',
     'no-param-reassign': 'off',
     'no-console': ['error', { allow: ['tron'] }],
   },
