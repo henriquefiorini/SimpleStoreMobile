@@ -23,6 +23,10 @@ export default createAppContainer(
         headerStyle: {
           backgroundColor: 'white',
         },
+        headerTitleStyle: {
+          fontSize: 20,
+          fontWeight: 'bold',
+        },
       },
     },
   ),
